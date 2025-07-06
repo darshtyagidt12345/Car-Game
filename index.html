@@ -180,6 +180,21 @@
         document.querySelector("#img2").style.transform="rotatex(0deg)"
       });
       brakeBtn.addEventListener("mouseleave", () => isBPressed = false);
+      acceleratorBtn.addEventListener("touchstart", () =>{ isAPressed = true
+        document.querySelector("#img3").style.transform="rotatex(45deg)"
+      });
+      acceleratorBtn.addEventListener("touchend", () =>{ isAPressed = false
+        document.querySelector("#img3").style.transform="rotatex(0deg)"
+      });
+      acceleratorBtn.addEventListener("touchcancel", () => isAPressed = false);
+
+      brakeBtn.addEventListener("touchstart", () =>{ isBPressed = true
+        document.querySelector("#img2").style.transform="rotatex(45deg)"
+      });
+      brakeBtn.addEventListener("touchend", () =>{ isBPressed = false
+        document.querySelector("#img2").style.transform="rotatex(0deg)"
+      });
+      brakeBtn.addEventListener("touchcancel", () => isBPressed = false);
 
       clutchBtn.addEventListener("click", () => car.clutch());
       pBtn.addEventListener("click", () => car.gearchanger(car.gear + 1));
