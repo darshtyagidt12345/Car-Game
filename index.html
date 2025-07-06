@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>car system</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        overflow: hidden;
+        background: aqua;
+      }
+      button {
+        border-radius: 1rem;
+        color: black;
+        border: none;
+        background-color: aqua;
+      }
+      .btns {
+        position: absolute;
+      }
+      .sky {
+        height: 100vh;
+        width: 100%;
+        
+        background-repeat: no-repeat;
+        position: absolute;
+      }
+     
+      .track {
+        height: 60vh;
+        width: 800vw;
+        background-image: url(track.png);
+        background-repeat: repeat-x;
+        position: absolute;
+        top: 70vh;
+        animation: carMove linear 13s infinite;
+      }
+      .car {
+        height: 100px;
+        width: 380px;
+        background-image: url(car_body.png);
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: absolute;
+        bottom: 30vh;
+      }
+      .wheel1 img,
+      .wheel2 img {
+        width: 67px;
+        position: absolute;
+        animation-name: wheelRotation;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+      }
+      .wheel1 img {
+        top: 42px;
+        left: 42px;
+      }
+      .wheel2 img {
+        top: 42px;
+        left: 235px;
+      }
+      @keyframes wheelRotation {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes carMove {
+        100% { transform: translateX(-500vw); }
+      }
+      button, .btn{
+        cursor: pointer;
+      }
+
+    </style>
+  </head>
+  <body>
+    
+    <div class="container">
+      <div class="sky">
+        <div class="trees"></div>
+        <div class="track"></div>
+        <div class="car">
+          <div class="wheel wheel1">
+            <img src="car_wheel_left.png" alt="wheel1" />
+          </div>
+          <div class="wheel wheel2">
+            <img src="car_wheel_right.png" alt="wheel2" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <audio src="/automobile-horn-153260.mp3" style="display: none;" id="audio"></audio>
+    <div class="btns">
+      <button id="clutch"><img src="small-paddle.png" id = "img1" height="80" alt="" /></button>
+      <button id="brake"><img src="small-paddle.png" id = "img2" height="80" alt="" /></button>
+      <button id="accelerator"><img src="big-paddle.png" id = "img3" height="80" alt="" /></button>
+      <button id="p" style="font-size: x-large; position: fixed; top:30px; left:130px">+</button>
+      <button id="m" style="font-size: x-large; position: fixed; top:30px; left:160px">-</button>
+      <h1 id="speed"></h1>
+      <h1 id="gear"></h1>
+      <h2 class="btn" style="display: block;" onclick="audio.play()">📯</h2>
+    </div>
+
+    <script>
+      const gears = ["N", "1st", "2nd", "3rd", "4th", "5th"];
+      class ManualCar {
+        constructor() {
+          this.limits = [ 0, 10, 20, 40, 60, 260]; // km/h
+          this.speed = 0;
+          this.gear = 0;
+          this.cpressed = false;
+        }
+        accelerator() {
+          if (this.cpressed) return;
+          if (this.speed >= this.limits[this.gear]) return;
+          this.speed += 1;
+        }
+        brake() {
+          if (this.cpressed || this.speed <= 0) return;
+          this.speed -= 1;
+        }
+        clutch() {
+          this.cpressed = !this.cpressed;
+        }
+        gearchanger(gear) {
+          if (!this.cpressed) return;
+          if (gear < 0 || gear > 6) return;
+          if (Math.abs(gear - this.gear) !== 1) return;
+          this.gear = gear;
+          this.cpressed = false;
+        }
+      }
+
+      const car = new ManualCar();
+      let isAPressed = false;
+      let isBPressed = false;
+      setInterval(()=>{
+        if(!isAPressed){
+          car.brake()
+        }
+      },600)
+
+      const acceleratorBtn = document.getElementById("accelerator");
+      const brakeBtn = document.getElementById("brake");
+      const clutchBtn = document.getElementById("clutch");
+      const pBtn = document.getElementById("p");
+      const mBtn = document.getElementById("m");
+
+      const speedDiv = document.getElementById("speed");
+      const gearDiv = document.getElementById("gear");
+      const cstateDiv = document.getElementById("cstate");
+
+      const wd1 = document.querySelector(".wheel1 img");
+      const wd2 = document.querySelector(".wheel2 img");
+
+      // Assuming real wheel diameter is 0.6 m:
+      const realWheelDiameter = 0.6; // meters
+      const wheelCircumference = Math.PI * realWheelDiameter;
+
+      acceleratorBtn.addEventListener("mousedown", () =>{ isAPressed = true
+        document.querySelector("#img3").style.transform="rotatex(45deg)"
+      });
+      acceleratorBtn.addEventListener("mouseup", () =>{ isAPressed = false
+        document.querySelector("#img3").style.transform="rotatex(0deg)"
+      });
+      acceleratorBtn.addEventListener("mouseleave", () => isAPressed = false);
+
+      brakeBtn.addEventListener("mousedown", () =>{ isBPressed = true
+        document.querySelector("#img2").style.transform="rotatex(45deg)"
+      });
+      brakeBtn.addEventListener("mouseup", () =>{ isBPressed = false
+        document.querySelector("#img2").style.transform="rotatex(0deg)"
+      });
+      brakeBtn.addEventListener("mouseleave", () => isBPressed = false);
+
+      clutchBtn.addEventListener("click", () => car.clutch());
+      pBtn.addEventListener("click", () => car.gearchanger(car.gear + 1));
+      mBtn.addEventListener("click", () => car.gearchanger(car.gear - 1));
+
+      setInterval(() => {
+        if (isAPressed) car.accelerator();
+      }, 300);
+
+      setInterval(() => {
+        if (isBPressed) car.brake();
+      }, 250);
+
+      setInterval(() => {
+        speedDiv.textContent = `${car.speed} km/h`;
+        gearDiv.textContent = `Gear: ${gears[car.gear]}`;
+
+        const v = car.speed * 1000 / 3600; // m/s
+        if (v > 0) {
+  const rotationTime = wheelCircumference / v;
+  wd1.style.animationDuration = `${rotationTime}s`;
+  wd2.style.animationDuration = `${rotationTime}s`;
+
+  // infinite track scrolling:
+  const virtualRoadSection = 100; // meters
+  const roadDuration = virtualRoadSection / v;
+  document.querySelector(".track").style.animationDuration = `${roadDuration}s`;
+} else {
+  wd1.style.animationDuration = `0s`;
+  wd2.style.animationDuration = `0s`;
+  document.querySelector(".track").style.animationDuration = `0s`;
+}
+if(car.cpressed == true){
+  document.querySelector("#img1").style.transform="rotatex(45deg)"
+}else{
+  document.querySelector("#img1").style.transform="rotatex(0deg)"
+}
+
+      }, 16);
+    </script>
+  </body>
+</html>
