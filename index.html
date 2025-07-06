@@ -99,8 +99,14 @@
       <button id="clutch"><img src="small-paddle.png" id = "img1" height="80" alt="" /></button>
       <button id="brake"><img src="small-paddle.png" id = "img2" height="80" alt="" /></button>
       <button id="accelerator"><img src="big-paddle.png" id = "img3" height="80" alt="" /></button>
-      <button id="p" style="font-size: x-large; position: fixed; top:30px; left:130px">+</button>
-      <button id="m" style="font-size: x-large; position: fixed; top:30px; left:160px">-</button>
+      <div>
+      <button id="g" style="font-size: x-large;  margin-top: 0;">N</button>
+      <button id="g" style="font-size: x-large;  margin-top: 0;">1</button>
+      <button id="g" style="font-size: x-large; margin-top: 0;">2</button>
+      <button id="g" style="font-size: x-large; margin-top: 0;">3</button>
+      <button id="g" style="font-size: x-large; margin-top: 0;">4</button>
+      <button id="g" style="font-size: x-large; margin-top: 0;">5</button>
+      </div>
       <h1 id="speed"></h1>
       <h1 id="gear"></h1>
       <h2 class="btn" style="display: block;" onclick="audio.play()">📯</h2>
@@ -113,7 +119,7 @@
       const gears = ["N", "1st", "2nd", "3rd", "4th", "5th"];
       class ManualCar {
         constructor() {
-          this.limits = [ 0, 10, 20, 40, 60, 260]; // km/h
+          this.limits = [ 0, 10, 20, 40, 60, 230]; // km/h
           this.speed = 0;
           this.gear = 0;
           this.cpressed = false;
@@ -132,8 +138,9 @@
         }
         gearchanger(gear) {
           if (!this.cpressed) return;
-          if (gear < 0 || gear > 6) return;
+          if (gear < 0 || gear > 5) return;
           if (Math.abs(gear - this.gear) !== 1) return;
+          if(this.speed < this.limits[gear-1]-5 && this.speed < this.limits[gear-1]+5)return;
           this.gear = gear;
           this.cpressed = false;
         }
@@ -197,8 +204,11 @@
       brakeBtn.addEventListener("touchcancel", () => isBPressed = false);
 
       clutchBtn.addEventListener("click", () => car.clutch());
-      pBtn.addEventListener("click", () => car.gearchanger(car.gear + 1));
-      mBtn.addEventListener("click", () => car.gearchanger(car.gear - 1));
+      document.querySelectorAll("#g").forEach((g)=>{
+        g.addEventListener("click",()=>{
+          car.gearchanger(g.textContent=="N"?0:g.textContent)
+        })
+      })
 
       setInterval(() => {
         if (isAPressed) car.accelerator();
